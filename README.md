@@ -56,7 +56,6 @@ These services are intended to be run within [Docker](https://www.docker.com/) a
 
    ```
    pip install -e .
-   npm install
    cd services/apollo && npm install
    ```
 
