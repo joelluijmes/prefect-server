@@ -12,3 +12,4 @@ import prefect_server.graphql.messages
 import prefect_server.graphql.cloud_hooks
 import prefect_server.graphql.agents
 import prefect_server.graphql.flow_concurrency_limits
+import prefect_server.graphql.artifacts

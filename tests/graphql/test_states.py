@@ -14,22 +14,6 @@ from prefect.serialization.state import StateSchema
 state_schema = StateSchema()
 
 
-@pytest.fixture
-async def locked_flow_run_id(flow_group_id, flow_run_id):
-    await models.FlowGroup.where(id=flow_group_id).update(
-        {"settings": {"version_locking_enabled": True}}
-    )
-    return flow_run_id
-
-
-@pytest.fixture
-async def locked_task_run_id(flow_group_id, task_run_id):
-    await models.FlowGroup.where(id=flow_group_id).update(
-        {"settings": {"version_locking_enabled": True}}
-    )
-    return task_run_id
-
-
 class TestSetFlowRunStates:
     mutation = """
         mutation($input: set_flow_run_states_input!) {
@@ -85,32 +69,6 @@ class TestSetFlowRunStates:
         assert fr.version == 3
         assert fr.state == "Running"
 
-    async def test_set_flow_run_state_with_bad_version(
-        self, run_query, locked_flow_run_id
-    ):
-        result = await run_query(
-            query=self.mutation,
-            variables=dict(
-                input=dict(
-                    states=[
-                        dict(
-                            flow_run_id=locked_flow_run_id,
-                            version=10,
-                            state=Running().serialize(),
-                        )
-                    ]
-                )
-            ),
-        )
-
-        assert "State update failed" in result.errors[0].message
-
-        fr = await models.FlowRun.where(id=locked_flow_run_id).first(
-            {"state", "version"}
-        )
-        assert fr.version == 2
-        assert fr.state == "Scheduled"
-
     async def test_set_multiple_flow_run_states(
         self, run_query, flow_run_id, flow_run_id_2, flow_run_id_3
     ):
@@ -151,16 +109,16 @@ class TestSetFlowRunStates:
         assert fr3.state == "Retrying"
 
     async def test_set_multiple_flow_run_states_with_one_failed(
-        self, run_query, locked_flow_run_id, flow_run_id_3
+        self, run_query, flow_run_id_3
     ):
+        bad_id = str(uuid.uuid4())
         result = await run_query(
             query=self.mutation,
             variables=dict(
                 input=dict(
                     states=[
                         dict(
-                            flow_run_id=locked_flow_run_id,
-                            # BAD VERSION
+                            flow_run_id=bad_id,
                             version=100,
                             state=Success().serialize(),
                         ),
@@ -176,16 +134,8 @@ class TestSetFlowRunStates:
 
         assert result.data.set_flow_run_states is None
         assert (
-            f"State update failed for flow run ID {locked_flow_run_id}"
-            in result.errors[0].message
+            f"State update failed for flow run ID {bad_id}" in result.errors[0].message
         )
-
-        # this update failed
-        fr2 = await models.FlowRun.where(id=locked_flow_run_id).first(
-            {"state", "version"}
-        )
-        assert fr2.version == 2
-        assert fr2.state == "Scheduled"
 
     async def test_set_flow_run_state_with_result(self, run_query, flow_run_id):
         result = Result(10, result_handler=JSONResultHandler())
@@ -442,24 +392,6 @@ class TestSetTaskRunStates:
         assert tr.version == 2
         assert tr.state == "Running"
 
-    async def test_set_task_run_state_bad_version(self, run_query, locked_task_run_id):
-        result = await run_query(
-            query=self.mutation,
-            variables=dict(
-                input=dict(
-                    states=[
-                        dict(
-                            task_run_id=locked_task_run_id,
-                            version=100,
-                            state=Running().serialize(),
-                        )
-                    ]
-                )
-            ),
-        )
-        assert result.data.set_task_run_states is None
-        assert "State update failed" in result.errors[0].message
-
     async def test_set_multiple_task_run_states(
         self, run_query, task_run_id, task_run_id_2, task_run_id_3, running_flow_run_id
     ):
@@ -504,15 +436,16 @@ class TestSetTaskRunStates:
         assert tr3.state == "Retrying"
 
     async def test_set_multiple_task_run_states_with_one_failed(
-        self, run_query, locked_task_run_id, task_run_id_3, running_flow_run_id
+        self, run_query, task_run_id_3, running_flow_run_id
     ):
+        bad_id = str(uuid.uuid4())
         result = await run_query(
             query=self.mutation,
             variables=dict(
                 input=dict(
                     states=[
                         dict(
-                            task_run_id=locked_task_run_id,
+                            task_run_id=bad_id,
                             # BAD VERSION
                             version=100,
                             state=Success().serialize(),
@@ -525,16 +458,8 @@ class TestSetTaskRunStates:
 
         assert result.data.set_task_run_states is None
         assert (
-            f"State update failed for task run ID {locked_task_run_id}"
-            in result.errors[0].message
+            f"State update failed for task run ID {bad_id}" in result.errors[0].message
         )
-
-        # this update failed
-        tr2 = await models.TaskRun.where(id=locked_task_run_id).first(
-            {"state", "version"}
-        )
-        assert tr2.version == 1
-        assert tr2.state == "Pending"
 
     async def test_set_task_run_state_with_result(self, run_query, task_run_id):
         result = Result(10, result_handler=JSONResultHandler())

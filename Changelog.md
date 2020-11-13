@@ -1,5 +1,75 @@
 # Changelog
 
+## November 11, 2020 <Badge text="beta" type="success" />
+
+Released on November 11, 2020.
+
+### Features
+
+- Add experimental Helm chart for deploying in K8s - [#123](https://github.com/PrefectHQ/server/pull/123)
+
+### Contributors
+
+- [Jonas Bernhard](https://github.com/yolibernal)
+- [Joël Luijmes](https://github.com/joelluijmes)
+- [Shaun Cutts](https://github.com/shaunc)
+
+## November 10, 2020 <Badge text="beta" type="success" />
+
+Released on November 10, 2020.
+
+### Features
+
+- Add API for persisting and retrieving task run artifacts - [#121](https://github.com/PrefectHQ/server/pull/121)
+
+## October 29, 2020 <Badge text="beta" type="success" />
+
+Released on October 29, 2020.
+
+### Features
+
+- Add idempotency keys to `flows.create_flow` - [#116](https://github.com/PrefectHQ/server/pull/116)
+
+### Fixes
+
+- Expose database upgrade errors during infrastructure start  - [#117](https://github.com/PrefectHQ/server/pull/117)
+
+## October 27, 2020 <Badge text="beta" type="success" />
+
+Released on October 27, 2020.
+
+### Fixes
+
+- Check for existence of agent before updating flow run agent - [#114](https://github.com/PrefectHQ/server/issues/114)
+
+## October 22, 2020 <Badge text="beta" type="success" />
+
+Released on October 22, 2020.
+
+### Enhancements
+
+- Update flow settings graphql logic to use supported API routes - [#113](https://github.com/PrefectHQ/server/pull/113)
+
+## October 14, 2020 <Badge text="beta" type="success" />
+
+Released on October 14, 2020.
+
+### Fixes
+
+- Allow for scheduling different parameters and different run labels at the exact same time - [#111](https://github.com/PrefectHQ/server/pull/111)
+
+## October 13, 2020 <Badge text="beta" type="success" />
+
+Released on October 13, 2020.
+
+### Features
+
+- Allow for scheduling changing labels on a per-flow run basis - [#109](https://github.com/PrefectHQ/server/pull/109)
+
+### Fixes
+
+- Fixes issue with Agent Config schema - [#107](https://github.com/PrefectHQ/server/pull/107)
+
 ## September 24, 2020 <Badge text="beta" type="success" />
 
 Released on September 24, 2020.
